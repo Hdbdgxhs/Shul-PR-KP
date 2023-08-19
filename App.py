@@ -29,11 +29,12 @@ class Button(ttk.Button):
             tp.destroy()
 
 class Frame(tk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, xy):
         super().__init__(parent)
+        self.xy=xy
         self.config(width=self.winfo_screenwidth(), height=(self.winfo_screenheight()), background='white')
-        self.w=self.winfo_screenwidth()-76
-        self.h=self.winfo_screenheight()-73
+        self.w=self.winfo_screenwidth()
+        self.h=self.winfo_screenheight()-100
         self.canvans_button=tk.Canvas(self, width=(self.w-self.h), height=self.h, background='black')
         self.canvans_button.grid(row=0, column=0, sticky='news')
         self.canvans_button.grid_rowconfigure(0, weight=1)
@@ -50,6 +51,12 @@ class Frame(tk.Frame):
         self.canvans_button.create_window(0,0, window=self.frame_button)
         self.canvans = tk.Canvas(self, width=self.h, height=self.h, background='white')
         self.canvans.grid(row=0, column=1, sticky='news')
+        self.canvans.bind('<Button-1>', self.print)
+
+    def print(self):
+        print(1)
+        x=app.winfo_pointerx() - app.winfo_rootx()
+        print(x)
 
 class Win(tk.Toplevel):
     def __init__(self, parent):
@@ -72,6 +79,7 @@ class Win(tk.Toplevel):
     def Open(self):
         get = self.combobox.get()
         return get
+
 
 class App(tk.Tk):
     def __init__(self):
@@ -144,9 +152,9 @@ class App(tk.Tk):
         self.Geometry = self.tablist[fram].canvans.create_oval
 
     def New_frame(self):
-        fram=Frame(self.notebook)
+        fram=Frame(self.notebook, xy=self.RB)
         self.tablist.append(fram)
-        self.tablist[self.Num_frame].config(width=self.winfo_screenwidth(), height=self.winfo_screenheight(), background='gray')
+        self.tablist[self.Num_frame].config(width=self.winfo_screenwidth(), height=self.winfo_screenheight(), background='blue')
         self.notebook.add(self.tablist[self.Num_frame], text='Note ' + str(self.Num_frame))
         self.W=fram.h
         self.H=fram.h
