@@ -1,5 +1,4 @@
 import tkinter as tk
-import tkinter.ttk
 from tkinter import *
 from tkinter import ttk
 from tkinter import Menu
@@ -47,16 +46,17 @@ class Frame(tk.Frame):
         scroll_x.grid_columnconfigure(0, weight=1)
         scroll_y=ttk.Scrollbar(self.canvans_button, orient=VERTICAL, command=self.canvans_button.yview)
         scroll_y.grid(row=0, column=1, sticky='news')
-        #self.canvans_button.config(xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
         self.canvans_button.create_window(0,0, window=self.frame_button)
         self.canvans = tk.Canvas(self, width=self.h, height=self.h, background='white')
-        self.canvans.grid(row=0, column=1, sticky='news')
         self.canvans.bind('<Button-1>', self.print)
+        self.canvans.grid(row=0, column=1, sticky='news')
 
-    def print(self):
-        print(1)
-        x=app.winfo_pointerx() - app.winfo_rootx()
-        print(x)
+
+    def print(self, event):
+        x=(app.winfo_pointerx()-(app.winfo_screenwidth()-self.h))//(self.h//self.xy)+1
+        y=(app.winfo_pointery()-(app.winfo_screenheight()-self.h)+32)//(self.h//self.xy)+1
+        print(x, ' ', y)
+        app.Draw_Geometry(x, y)
 
 class Win(tk.Toplevel):
     def __init__(self, parent):
@@ -118,16 +118,18 @@ class App(tk.Tk):
 
         if(self.XY_position[0]==0):
             print(x, ' ', y)
-            self.XY_position[0]=x
-            self.XY_position[1]=y
+            self.XY_position[0] = x
+            self.XY_position[1] = y
             return
         elif(self.XY_position[2]==0):
             print(x, ' ', y)
-            self.XY_position[2]=x
-            self.XY_position[3]=y
+            self.XY_position[0]=self.XY_position[0]-1
+            self.XY_position[1]=self.XY_position[1]-1
+            self.XY_position[2]=x-1
+            self.XY_position[3]=y-1
             if self.Geometry!=None:
-                self.Geometry(self.XY_position[0]*self.W,self.XY_position[1]*self.H,
-                              self.XY_position[2]*self.W,self.XY_position[3]*self.H)
+                self.Geometry(self.XY_position[0]*self.W+self.W//2,self.XY_position[1]*self.H+self.H//2,
+                              self.XY_position[2]*self.W+self.W//2,self.XY_position[3]*self.H+self.H//2)
         self.XY_position[0]=0
         self.XY_position[1]=0
         self.XY_position[2]=0
@@ -165,8 +167,8 @@ class App(tk.Tk):
         self.RB=int(win.bk)
         print(self.RB)
         self.New_frame()
-        self.W=self.W//(self.RB+1)
-        self.H=self.H//(self.RB+1)
+        self.W=self.W//(self.RB)
+        self.H=self.H//(self.RB)
         i=0
         g=0
         for i in range(self.RB):
