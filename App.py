@@ -31,9 +31,9 @@ class Frame(tk.Frame):
     def __init__(self, parent, xy):
         super().__init__(parent)
         self.xy=xy
-        self.config(width=self.winfo_screenwidth(), height=(self.winfo_screenheight()), background='white')
+        self.config(width=self.winfo_screenwidth(), height=(self.winfo_screenheight()-110), background='white')
         self.w=self.winfo_screenwidth()
-        self.h=self.winfo_screenheight()-100
+        self.h=self.winfo_screenheight()-110
         self.canvans_button=tk.Canvas(self, width=(self.w-self.h), height=self.h, background='black')
         self.canvans_button.grid(row=0, column=0, sticky='news')
         self.canvans_button.grid_rowconfigure(0, weight=1)
@@ -50,12 +50,28 @@ class Frame(tk.Frame):
         self.canvans = tk.Canvas(self, width=self.h, height=self.h, background='white')
         self.canvans.bind('<Button-1>', self.print)
         self.canvans.grid(row=0, column=1, sticky='news')
+        self.Renctangle()
 
-
+    def Renctangle(self):
+        self.Renc=[0]*self.xy
+        rang=self.h//self.xy
+        i=0
+        g=0
+        ren=None
+        for i in range(self.xy):
+            self.Renc[i]=[0]*self.xy
+            for g in range(self.xy):
+                self.Renc[i][g]=self.canvans.create_rectangle(i*rang-1, g*rang-1,(i+1)*rang, (g+1)*rang, outline="#DCDCDC")
+    def moveBall(self):
+        # передвигаем наш овал на 10 пикселей по обеим осям
+        self.canvans.move(self.p, -10, -10)
+        # повторяем через 100 мс (1 секунда)
+        print(1)
+        self.canvans.after(1000, self.moveBall)
     def print(self, event):
         x=(app.winfo_pointerx()-(app.winfo_screenwidth()-self.h))//(self.h//self.xy)+1
-        y=(app.winfo_pointery()-(app.winfo_screenheight()-self.h)+32)//(self.h//self.xy)+1
-        print(x, ' ', y)
+        y=(app.winfo_pointery()-(app.winfo_screenheight()-self.h)+40)//(self.h//self.xy)+1
+        self.canvans.itemconfig(self.Renc[x-1][y-1], outline="#99958C")
         app.Draw_Geometry(x, y)
 
 class Win(tk.Toplevel):
@@ -85,7 +101,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.state('zoomed')
-        self.geometry("{}x{}".format(self.winfo_screenwidth(), self.winfo_screenheight()))
+        self.geometry("{}x{}".format(self.winfo_screenwidth(), self.winfo_screenheight()-40))
         self.title("KP_Kurs")
         self.iconbitmap("icons8-монитор-50.ico")
         self.config(background='grey1')
@@ -130,6 +146,9 @@ class App(tk.Tk):
             if self.Geometry!=None:
                 self.Geometry(self.XY_position[0]*self.W+self.W//2,self.XY_position[1]*self.H+self.H//2,
                               self.XY_position[2]*self.W+self.W//2,self.XY_position[3]*self.H+self.H//2)
+        fram = self.notebook.tabs().index(self.notebook.select())
+        (self.tablist[fram].canvans.itemconfig(self.tablist[fram].Renc[self.XY_position[0]][self.XY_position[1]], outline="#DCDCDC"))
+        (self.tablist[fram].canvans.itemconfig(self.tablist[fram].Renc[self.XY_position[2]][self.XY_position[3]], outline="#DCDCDC"))
         self.XY_position[0]=0
         self.XY_position[1]=0
         self.XY_position[2]=0
